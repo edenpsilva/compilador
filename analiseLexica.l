@@ -6,10 +6,14 @@ digito [0-9]+
 reservada else|if|int|return|void|while|str
 simbolo "+"|"-"|"*"|"/"|"<"|"<="|">"|">="|"=="|"!="|"="|";"|","|"("|")"|"["|"]"|"{"|"}"
 
+espaço \ 
 ID {letra}{letra}*
 NUM {digito}{digito}*
-ERRID (simbolo|{letra}|{digito})(simbolo|{letra}|{digito})+
+ERRID [{simbolo}{digito}{letra}]({simbolo}|{digito}|{letra})*
 
+%{/*numero de comentários*/
+	int numCOM = 0;
+%}
 
 %x COM 
 %x STR
@@ -17,6 +21,7 @@ ERRID (simbolo|{letra}|{digito})(simbolo|{letra}|{digito})+
 %%
 
 "/*" 		{	/*inicio de comentário*/
+			numCOM = 1;
 			printf("COM: ");		
 			BEGIN( COM );
 		}
@@ -28,9 +33,26 @@ ERRID (simbolo|{letra}|{digito})(simbolo|{letra}|{digito})+
 
 .|\n|\r		{/*faz nada*/}
 
-<COM>"*/"	{	/*fim do comentário*/
-			BEGIN( INITIAL );
-			putchar('\n');}
+
+<COM>"*/"	{	numCOM--;
+			if (numCOM == 0){
+				/*fim do comentário*/
+				BEGIN( INITIAL );
+				putchar('\n');
+			}else{ /*ainda há comentarios aninhados*/
+				putchar('*');
+				putchar('/');
+			}
+
+		}
+
+<COM>"/*"	{	
+			/*comentário aninhado*/
+			numCOM++;
+			/*para imprimir o comentário*/
+			putchar('/');
+			putchar('*');
+		}	
 
 <STR>["]	{	/*fim da string*/
 			putchar('\n');
