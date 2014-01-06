@@ -64,62 +64,48 @@ ESPACO {espaco}|\t|\n|\r
 ERRO .|({ID}|{NUM})+
 
 
-S ["]([^\\"]|\\([^0-7xX]|0|[0-7]{3}|[xX][0-9a-fA-F]{2}))*["]
-
-
-%{/*numero de comentários*/
-	int numCOM = 0;
-%}
-
-
-%x COM 
-%x STR
-
 
 %%
 
-{LCOM} 		{	/*inicio de comentário*/
-			numCOM = 1;
-			printf("COM(");		
-			BEGIN( COM );
-		}
 
 
-<COM>{RCOM}	{	numCOM--;
-			if (numCOM == 0){
-				/*fim de comentário*/
-				BEGIN( INITIAL );
-				/*putchar('\n');*/
-				putchar(')');
-				printf(" ");
 
-			}else{ /*ainda há comentarios aninhados*/
-				putchar('*');
-				putchar('/');
-			}
-		}
+"/*" 		{	/*comentário*/
+				int numCOM = 1;
+				register char c;
+				
+		 
+		        for ( ; ; ){
+		        	while ( ((c = input()) != '*') && (c !='/') && c != EOF )
+				    	;
 
-<COM>{LCOM}	{	
-			/*comentário aninhado*/
-			numCOM++;
-			/*para imprimir o comentário*/
-			putchar('/');
-			putchar('*');
-		}
-	
-<COM>.|\n|\r	{ECHO;}
+				    if ( c == '*' ){
+				    	while ( (c = input()) == '*' )
+				    	    ;
+				        if ( (c == '/') ){
+							numCOM--;
+							if ( numCOM == 0){
+								printf("COM ");
+								break;
+							}	
+						}
+					
+					}
 
-
-<STR>["]	{	/*fim da string*/
-			/*putchar('\n');*/
-			putchar(')');
-			printf(" ");
-			BEGIN( INITIAL );			
-		}
-	
-<STR>^[{ql}]	{ECHO;}
-
-<STR>\\["]	{putchar('"');}
+					/*comentário aninhado*/
+					if (c =='/'){
+							if( (c = input()) == '*'){
+							numCOM++;
+						}	
+					}
+					
+					/*comentário se marcador de final e fim de arquivo*/						 
+				    if ( c == EOF ){
+				    	printf( "ERRO(EOF em comentário)" );
+				      	break;
+				    }
+		        }
+            }
 
 
 {ELSE}		{printf("ELSE");printf(" ");}
@@ -173,4 +159,4 @@ S ["]([^\\"]|\\([^0-7xX]|0|[0-7]{3}|[xX][0-9a-fA-F]{2}))*["]
 
 {ERRO}		{printf("ERRO(%s)", yytext);printf(" ");}
 
-<<EOF>>		{puts("\n"); return ;}
+<<EOF>>		{puts("\n");return ;}
