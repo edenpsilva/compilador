@@ -70,7 +70,7 @@ ERRO .|({ID}|{NUM})+
 
 
 
-"/*" 		{	/*comentário*/
+"/*" 		{/*comentário*/
 				int numCOM = 1;
 				register char c;
 				
