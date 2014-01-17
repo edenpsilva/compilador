@@ -56,107 +56,110 @@ ID {letra}{letra}*
 digito [0-9]
 NUM {digito}{digito}*
 
+aspa \\["]
+
+exp1 ([^"\n]?*)
+exp2 (\\t|\\n|\\\")?*
+
+STR \"({exp1}|{exp2})?*\"
+ERRSTR \"({exp1}|{exp2})?*
 
 espaco " "
 ESPACO {espaco}|\t|\n|\r
 
+ERRO .|({ID}|{NUM})+ 
 
-ERRO .|({ID}|{NUM})+
+%{
+	int numCOM;
+%}
 
-
+%x COM
 
 %%
 
+{LCOM} 		{	/*inicio de comentário*/
+			numCOM = 1;
+
+			BEGIN( COM );
+		}
 
 
+<COM>{LCOM}	{	/*comentário aninhado*/
+			numCOM++;
+			/*putchar('/');
+			putchar('*');*/
+		}
 
-"/*" 		{/*comentário*/
-				int numCOM = 1;
-				register char c;
-				
-		 
-		        for ( ; ; ){
-		        	while ( ((c = input()) != '*') && (c !='/') && c != EOF )
-				    	;
+<COM>{RCOM}	{	numCOM--;
+			if (numCOM == 0){/*fim de comentário*/				
+				BEGIN( INITIAL );
+				printf("COM\n");		
+				/*putchar('\n');
+				putchar(')');
+				printf(" ");*/
 
-				    if ( c == '*' ){
-				    	while ( (c = input()) == '*' )
-				    	    ;
-				        if ( (c == '/') ){
-							numCOM--;
-							if ( numCOM == 0){
-								printf("COM ");
-								break;
-							}	
-						}
-					
-					}
+			}else{ /*ainda há comentarios aninhados*/
+				/*putchar('*');
+				putchar('/');*/
+			}
+		}
 
-					/*comentário aninhado*/
-					if (c =='/'){
-							if( (c = input()) == '*'){
-							numCOM++;
-						}	
-					}
-					
-					/*comentário se marcador de final e fim de arquivo*/						 
-				    if ( c == EOF ){
-				    	printf( "ERRO(EOF em comentário)" );
-				      	break;
-				    }
-		        }
-            }
+<COM>.|\n|\t		{}
+<COM><<EOF>>	{	BEGIN( INITIAL );
+			printf("ERROCOM- não fechou comentario\n");			
+		}
 
 
-{ELSE}		{printf("ELSE");printf(" ");}
-{IF} 		{printf("IF");printf(" ");}
-{INT} 		{printf("INT");printf(" ");}
-{RETURN}	{printf("RETURN");printf(" ");}
-{VOID} 		{printf("VOID");printf(" ");}
-{WHILE} 	{printf("WHILE");printf(" ");}
-{STRING}	{printf("STRING");printf(" ");}
+{STR}		{printf("STR(%s)\n",yytext);}
+{ERRSTR}	{printf("ERRSTR->String sem aspas: %s\n",yytext);}
 
-{PLUS} 		{printf("PLUS");printf(" ");}
-{MENOS}		{printf("MENOS");printf(" ");}
-{MULT} 		{printf("MULT");printf(" ");} 
-{DIV} 		{printf("DIV");printf(" ");}
+{ELSE}		{printf("ELSE\n");}
+{IF} 		{printf("IF\n");}
+{INT} 		{printf("INT\n");}
+{RETURN}	{printf("RETURN\n");}
+{VOID} 		{printf("VOID\n");}
+{WHILE} 	{printf("WHILE\n");}
+{STRING}	{printf("STRING\n");}
 
-
-{MENOR} 	{printf("MENOR");printf(" ");}
-{MENORIGUAL}	{printf("MENORIGUAL");printf(" ");}
-{MAIOR}		{printf("MAIOR");printf(" ");}
-{MAIORIGUAL}	{printf("MAIORIGUAL");printf(" ");}
-{EQUIVALE}	{printf("EQUIVALE");printf(" ");}
-{DIFERENTE} 	{printf("DIFERENTE");printf(" ");}
+{PLUS} 		{printf("PLUS\n");}
+{MENOS}		{printf("MENOS\n");}
+{MULT} 		{printf("MULT\n");} 
+{DIV} 		{printf("DIV\n");}
 
 
-{ATRIB}		{printf("ATRIB");printf(" ");}
+{MENOR} 	{printf("MENOR\n");}
+{MENORIGUAL}	{printf("MENORIGUAL\n");}
+{MAIOR}		{printf("MAIOR\n");}
+{MAIORIGUAL}	{printf("MAIORIGUAL\n");}
+{EQUIVALE}	{printf("EQUIVALE\n");}
+{DIFERENTE} 	{printf("DIFERENTE\n");}
 
 
-{EOC}		{printf("EOC");printf(" ");}
+{ATRIB}		{printf("ATRIB\n");}
 
 
-{VIRG} 		{printf("VIRG");printf(" ");}
+{EOC}		{printf("EOC\n");}
 
 
-{LPARENT} 	{printf("LPARENT");printf(" ");}
-{RPARENT} 	{printf("RPARENT");printf(" ");}
+{VIRG} 		{printf("VIRG\n");}
 
 
-{LCOLC}		{printf("LCOLC");printf(" ");}
-{RCOLC}		{printf("RCOLC");printf(" ");}
+{LPARENT} 	{printf("LPARENT\n");}
+{RPARENT} 	{printf("RPARENT\n");}
 
 
-{LCHAVE}	{printf("LCHAVE");printf(" ");}
-{RCHAVE}	{printf("RCHAVE");printf(" ");}
+{LCOLC}		{printf("LCOLC\n");}
+{RCOLC}		{printf("RCOLC\n");}
 
 
-{ID}		{printf("ID(%s)", yytext);printf(" ");}
-{NUM}		{printf("NUM(%s)", yytext);printf(" ");}
+{LCHAVE}	{printf("LCHAVE\n");}
+{RCHAVE}	{printf("RCHAVE\n");}
+
+
+{ID}		{printf("ID(%s)\n", yytext);}
+{NUM}		{printf("NUM(%s)\n", yytext);}
 
 
 {ESPACO}	{/*faz nada, pois encontra espaço ou quebra de linha*/}
 
-{ERRO}		{printf("ERRO(%s)", yytext);printf(" ");}
-
-<<EOF>>		{puts("\n");return ;}
+{ERRO}		{printf("ERRO(%s)", yytext);printf("\n");}
