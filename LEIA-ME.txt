@@ -1,0 +1,7 @@
+Ordem de comandos:
+
+bison -v -d -o parser.c parser.y
+
+flex -v -t lexico.l > lexico.c
+
+gcc parser.c lexico.c -o e
