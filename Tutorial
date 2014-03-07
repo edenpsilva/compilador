@@ -1,0 +1,37 @@
+Éden Pereira da Silva
+
+Prof. não consegui aprender em tempo viável a fazer o makefile.
+Também não consegui terminar o analisador semântico.
+De todo modo estando você com o flex e bison isntalados, basta 
+seguir os passos seguir os passos seguinte e não haverá problema.
+
+há no github quatro arquivos base:
+*	lexico.l
+*	parser.y
+*	abstrata.h
+*	abstrataf.h
+
+Só é preciso executar os dois primeiros.
+
+Primeiro abra o diretório contendo os quatro arquivos no terminal
+em seguida digite segundo a sequencia abaixo:
+flex -v -t lexico.l>lexico.c 
+aperte "enter".. O arquivo lexico.c será gerado na pasta...
+
+Depois digite
+bison -v -d -o parser.c parser.y
+novamente aperte "enter"
+alguns arquivos com nome parser aparecerão na pasta.
+
+por último digite:
+gcc parser.c lexico -o e
+novamente aperte "enter"
+
+e foi criado o executável e.exe
+agora é só fazer os testes digitando
+./e <teste7.c
+e apertando "enter"..
+o teste foi sobre o arquivo teste7.c, basta variar o nome do arquivo 
+teste6.c, teste3.c, por aí vai e a análise sintática e léxica (não 
+necessariamente nesta ordem) serão feitas do mesmo modo.
+
